@@ -5,7 +5,7 @@ import random
 from datetime import datetime, timedelta
 
 # Load the file
-file_path = "../history.csv"
+file_path = os.path.join(os.path.dirname(__file__), "../history.csv")
 dataset = pd.read_csv(file_path)
 
 # Identify creatinine result and date columns
