@@ -29,10 +29,8 @@ cursor.execute("""
 CREATE TABLE IF NOT EXISTS Patient_Data (
     PID INTEGER PRIMARY KEY,
     Admission_Status TEXT NOT NULL CHECK (Admission_Status IN ('Yes', 'No', 'Pending')),
-    Admission_Date TEXT NOT NULL CHECK (Admission_Date LIKE '____-__-__'),
-    DOB TEXT NOT NULL CHECK (DOB LIKE '____-__-__'),
-    Admission_Time TEXT NOT NULL CHECK (Admission_Time LIKE '____-__-__ __:__:__')
-);
+    Admission_Date TEXT NOT NULL CHECK (Admission_Date LIKE '____-__-__ __:__:__'),
+    DOB TEXT NOT NULL CHECK (DOB LIKE '____-__-__'));
 """)
 
 # Create the 'Feature_Store' table
