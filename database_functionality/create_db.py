@@ -5,6 +5,7 @@ This script initializes an SQLite database and creates necessary tables.
 
 Usage:
     Run this script to create or update the database schema.
+    WARNING: Rerunning this script after intial db connection
 
 Author: Hemal Munbodh
 Date: 01/02/2025
@@ -18,19 +19,26 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 # Construct the path to the database file in the same directory as the script
 db_path = os.path.join(script_dir, "patient_database.db")
 
+# Warning delete
+DELETE_EXISTING_DB = True
+if DELETE_EXISTING_DB:
+    if os.path.exists(db_path):
+        os.remove(db_path)
+        print(f"Existing database '{db_path}' deleted.")
+
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
 # Enable foreign keys (IMPORTANT)
 cursor.execute("PRAGMA foreign_keys = ON")
 
-# Create a 'users' table
+# Create a 'Patient_Data' table
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Patient_Data (
     PID INTEGER PRIMARY KEY,
     Admission_Status TEXT NOT NULL CHECK (Admission_Status IN ('Yes', 'No', 'Pending')),
-    Admission_Date TEXT NOT NULL CHECK (Admission_Date LIKE '____-__-__ __:__:__'),
-    DOB TEXT NOT NULL CHECK (DOB LIKE '____-__-__'));
+    Admission_Date TEXT NULL CHECK (Admission_Date LIKE '____-__-__ __:__:__'),
+    DOB TEXT NULL CHECK (DOB LIKE '____-__-__'));
 """)
 
 # Create the 'Feature_Store' table
@@ -65,5 +73,6 @@ CREATE TABLE IF NOT EXISTS Outbox (
 
 
 conn.commit()
+print("patient_database created!")
 conn.close()
 
