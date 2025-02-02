@@ -3,3 +3,5 @@
 
 # skip db_interactions file
 /database_functionality/db_interactions_temp.py
+
+**/.DS_Store
