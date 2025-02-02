@@ -6,6 +6,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install \
 
 # Create a directory for application
 WORKDIR /container
+ENV PYTHONPATH=/container
 
 # Copy project files into the container
 COPY . /container/

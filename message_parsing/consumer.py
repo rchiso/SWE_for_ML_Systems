@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import pika
+from ml.consumer import QUEUE_NAME as ML_QUEUE_NAME
 
 RABBIT_HOST = "localhost"
-QUEUE_NAME = "main_queue"
+QUEUE_NAME = "message_parsing_queue"
 
 # TODO: implement message processing here
 def process_message(body):
@@ -16,13 +17,24 @@ def process_message(body):
     # Otherwise it "succeeds"
     print("[consumer] Done processing.")
 
+# We don't have an explicit producer in this queue, because the consumer of 1st queue is acting as one
 def callback(ch, method, properties, body):
     # Extract or initialize retry count from headers
     headers = properties.headers or {}
     retry_count = headers.get("x-retry-count", 0)
 
     try:
+        # TODO: parsing here
         process_message(body)
+        # TODO: save_to_db()
+        # TODO: feature_reconstruction()
+        # Publish to the second queue
+        ch.basic_publish(
+            exchange="",
+            routing_key=ML_QUEUE_NAME,
+            body="12345", # TODO: this should be the result we wanna send
+            properties=pika.BasicProperties(delivery_mode=2)  # durable
+        )
         # If success, ACK the message
         ch.basic_ack(delivery_tag=method.delivery_tag)
     except Exception as e:
@@ -62,10 +74,10 @@ def main():
     channel = connection.channel()
 
     # -- Declare DLX and DLQ (for dead letters) --
-    DLX_NAME = "dlx_main"
+    DLX_NAME = "dlx_message_parsing"
     channel.exchange_declare(exchange=DLX_NAME, exchange_type="direct", durable=True)
 
-    DLQ_NAME = "main_queue_dlx"
+    DLQ_NAME = "message_parsing_queue_dlx"
     channel.queue_declare(queue=DLQ_NAME, durable=True)
     channel.queue_bind(exchange=DLX_NAME, queue=DLQ_NAME, routing_key="dlx_routing_key")
 
