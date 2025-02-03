@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import pika
+from parsing.hl7 import mssg_parser
 from ml.consumer import QUEUE_NAME as ML_QUEUE_NAME
 
 RABBIT_HOST = "localhost"
@@ -25,7 +26,8 @@ def callback(ch, method, properties, body):
 
     try:
         # TODO: parsing here
-        process_message(body)
+        mssg_type, data = mssg_parser(body)
+        process_message(body)   
         # TODO: save_to_db()
         # TODO: feature_reconstruction()
         # Publish to the second queue
