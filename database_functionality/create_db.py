@@ -37,8 +37,8 @@ cursor.execute("""
 CREATE TABLE IF NOT EXISTS Patient_Data (
     PID INTEGER PRIMARY KEY,
     Admission_Status TEXT NOT NULL CHECK (Admission_Status IN ('Yes', 'No', 'Pending')),
-    Admission_Date TEXT NULL CHECK (Admission_Date LIKE '____-__-__ __:__:__'),
-    DOB TEXT NULL CHECK (DOB LIKE '____-__-__'));
+    Admission_Date TEXT NULL CHECK (Admission_Date LIKE '____________'),
+    DOB TEXT NULL CHECK (DOB LIKE '________'));
 """)
 
 # Create the 'Feature_Store' table
@@ -52,24 +52,24 @@ CREATE TABLE IF NOT EXISTS Feature_Store (
     Mean FLOAT,
     Standard_Deviation FLOAT,
     Last_Result_Value FLOAT,
-    Latest_Result_Timestamp TEXT CHECK (Latest_Result_Timestamp LIKE '____-__-__ __:__:__'),
+    Latest_Result_Timestamp TEXT CHECK (Latest_Result_Timestamp LIKE '____________'),
     No_of_Samples INTEGER ,
     Ready_for_Inference TEXT NOT NULL CHECK (Ready_for_Inference IN ('Yes', 'No')),
     FOREIGN KEY (PID) REFERENCES Patient_Data (PID) ON DELETE CASCADE
 );
 """)
 
-# Create the 'Outbox' table
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS Outbox (
-    Outbox_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-    PID TEXT NOT NULL,  -- Foreign key from Feature_Store. -- If you have an insertion into outbox, then PID cannot be empty
-    Created_At TEXT NOT NULL CHECK (Created_At LIKE '____-__-__ __:__:__'),
-    Process_Status TEXT NOT NULL CHECK (Process_Status IN ('In-process', 'Done', 'To be Processed')),
-    Processed_At TEXT CHECK (Processed_At LIKE '____-__-__ __:__:__'),
-    FOREIGN KEY (PID) REFERENCES Feature_Store (PID) ON DELETE CASCADE
-);
-""")
+# # Create the 'Outbox' table
+# cursor.execute("""
+# CREATE TABLE IF NOT EXISTS Outbox (
+#     Outbox_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+#     PID TEXT NOT NULL,  -- Foreign key from Feature_Store. -- If you have an insertion into outbox, then PID cannot be empty
+#     Created_At TEXT NOT NULL CHECK (Created_At LIKE '____-__-__ __:__:__'),
+#     Process_Status TEXT NOT NULL CHECK (Process_Status IN ('In-process', 'Done', 'To be Processed')),
+#     Processed_At TEXT CHECK (Processed_At LIKE '____-__-__ __:__:__'),
+#     FOREIGN KEY (PID) REFERENCES Feature_Store (PID) ON DELETE CASCADE
+# );
+# """)
 
 
 conn.commit()
