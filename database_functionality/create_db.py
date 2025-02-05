@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS Feature_Store (
     Mean FLOAT,
     Standard_Deviation FLOAT,
     Last_Result_Value FLOAT,
-    Latest_Result_Timestamp TEXT CHECK (Latest_Result_Timestamp LIKE '____________'),
+    Latest_Result_Timestamp TEXT CHECK (Latest_Result_Timestamp LIKE '______________'),
     No_of_Samples INTEGER ,
     Ready_for_Inference TEXT NOT NULL CHECK (Ready_for_Inference IN ('Yes', 'No')),
     FOREIGN KEY (PID) REFERENCES Patient_Data (PID) ON DELETE CASCADE

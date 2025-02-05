@@ -39,7 +39,7 @@ def process_creatinine_data(file_path):
             for idx, col in zip(dataset.index, latest_result_column)
         ]
         dataset['latest_test_timestamp'] = [
-            dataset.at[idx, col].strftime("%Y%m%d%H%M") if pd.notna(col) else None
+            dataset.at[idx, col].strftime("%Y%m%d%H%M%S") if pd.notna(col) else None
             for idx, col in zip(dataset.index, latest_date_idx)
         ]
     
