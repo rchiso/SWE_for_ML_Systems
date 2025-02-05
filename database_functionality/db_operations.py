@@ -16,26 +16,81 @@ def handle_adt_a01(data):
     """Handles ADT^A01 signal - Patient Admission."""
     patient_id, age, sex_key = data
     sex_mapping = {"M": 0, "F": 1}
-    sex = sex_mapping.get(sex_key, None)  # Ensure safe mapping
+    sex = sex_mapping.get(sex_key)  # Safe mapping; returns None if key not found
     print("Handling ADT")
 
     with connect_db() as conn:
         cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Patient_Data WHERE PID = ?", (patient_id,))
+        record = cursor.fetchone()
 
-        # Insert into Patient_Data
-        cursor.execute("""
-            INSERT INTO Patient_Data (PID, Admission_Status)
-            VALUES (?, ?);
-        """, (patient_id, "Yes"))
+        # If the record exists, prepare to update it
+        if record:
+            # Capture the column names from the SELECT query
+            columns = [desc[0] for desc in cursor.description]
+            
+            # If neither sex nor age is provided, do nothing
+            if sex is None and age is None:
+                return None
 
-        # Insert into Feature_Store with default NULL values
-        cursor.execute("""
-            INSERT INTO Feature_Store (PID, Sex, Age, Min, Max, Mean, Standard_Deviation,
-                                       Last_Result_Value, Latest_Result_Timestamp, No_of_Samples, Ready_for_Inference)
-            VALUES (?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'No');
-        """, (patient_id, sex, age))
+            # Update Admission_Status in Patient_Data
+            cursor.execute("UPDATE Patient_Data SET Admission_Status = ?", ('Yes',))
 
-        conn.commit()
+            # Update Feature_Store based on the provided values
+            if sex is not None and age is not None:
+                cursor.execute("UPDATE Feature_STORE SET Age = ?, Sex = ?", (age, sex))
+            elif sex is not None:
+                cursor.execute("UPDATE Feature_STORE SET Sex = ?", (sex,))
+            elif age is not None:
+                cursor.execute("UPDATE Feature_STORE SET Age = ?", (age,))
+
+            conn.commit()
+
+            # Fetch the updated Feature_Store record.
+            cursor.execute("SELECT * FROM Feature_Store WHERE PID = ?", (patient_id,))
+            updated_record = cursor.fetchone()
+            columns = [desc[0] for desc in cursor.description]
+            return dict(zip(columns, updated_record))
+
+        # If no record exists, admit the patient for the first time.
+        else:
+            cursor.execute("""
+                INSERT INTO Patient_Data (PID, Admission_Status)
+                VALUES (?, ?);
+            """, (patient_id, "Yes"))
+
+            cursor.execute("""
+                INSERT INTO Feature_Store (PID, Sex, Age, Min, Max, Mean, Standard_Deviation,
+                                        Last_Result_Value, Latest_Result_Timestamp, No_of_Samples, Ready_for_Inference)
+                VALUES (?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'No');
+            """, (patient_id, sex, age))
+            conn.commit()
+            return None
+
+# def handle_adt_a01(data):
+#     """Handles ADT^A01 signal - Patient Admission."""
+#     patient_id, age, sex_key = data
+#     sex_mapping = {"M": 0, "F": 1}
+#     sex = sex_mapping.get(sex_key, None)  # Ensure safe mapping
+#     print("Handling ADT")
+
+#     with connect_db() as conn:
+#         cursor = conn.cursor()
+
+#         # Insert into Patient_Data
+#         cursor.execute("""
+#             INSERT INTO Patient_Data (PID, Admission_Status)
+#             VALUES (?, ?);
+#         """, (patient_id, "Yes"))
+
+#         # Insert into Feature_Store with default NULL values
+#         cursor.execute("""
+#             INSERT INTO Feature_Store (PID, Sex, Age, Min, Max, Mean, Standard_Deviation,
+#                                        Last_Result_Value, Latest_Result_Timestamp, No_of_Samples, Ready_for_Inference)
+#             VALUES (?, ?, ?, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'No');
+#         """, (patient_id, sex, age))
+
+#         conn.commit()
 
 
 def handle_oru_a01(data):
