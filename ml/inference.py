@@ -1,20 +1,38 @@
 import pickle
+import os
 
+# Load model once at startup
+MODEL_PATH = "ml/trained_model.pkl"
+if os.path.exists(MODEL_PATH):
+    with open(MODEL_PATH, "rb") as f:
+        model = pickle.load(f)
+else:
+    raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
 
 def preprocess_data(data):
-    #TODO: See if any pre processing needs to be done
-    return data
-
+    """Extract and prepare features from the input dictionary."""
+    mrn = data["PID"]
+    timestamp = data["Latest_Result_Timestamp"]
+    features = [data["Age"], data["Sex"], data["Mean"], data["Standard_Deviation"], data["Max"], data["Min"], data['Last_Result_Value']]
+    return features, mrn, timestamp
 
 def predict_aki(data):
-    features = preprocess_data(data)
+    """
+    Predict AKI using the pre-trained model.
 
-    # with open("/ml/trained_model.pkl", "rb") as f:
-    #     model = pickle.load(f)
-    
-    # result = model.predict(features)
-    result = 1
-    return result, 32, 42
+    Args:
+        data (dict): Input dictionary with required patient features.
+
+    Returns:
+        tuple: (prediction result, mrn, timestamp)
+    """
+    try:
+        features, mrn, timestamp = preprocess_data(data)
+        result = model.predict([features])  # Wrap in a list for model input
+        return result, mrn, timestamp
+    except Exception as e:
+        print(f"[ml_inference] Prediction error: {e}")
+        return None, None, None
 
 
 

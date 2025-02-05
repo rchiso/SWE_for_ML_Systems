@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pika
-import sqlite3
 import random
+import json
 from ml.inference import predict_aki
 from ml.pager import send_pager_request
 
@@ -19,24 +19,20 @@ def callback(ch, method, properties, body):
     headers = properties.headers or {}
     retry_count = headers.get("x-retry-count", 0)
 
-    data = body.decode("utf-8", errors="replace") # TODO: this should be the row from feature store table
+    #data = body.decode("utf-8", errors="replace") # TODO: this should be the row from feature store table
+    data = json.loads(body)
     print(f"[ml_consumer] Received message: data={data}")
 
     # TODO: send to ml for inference
     aki_result, mrn, timestamp = predict_aki(data)
-
-    if aki_result == 1:
-
+    if aki_result[0] == 1:
         try:
             # TODO: send result to pager
             pager_status = send_pager_request(mrn, timestamp)
             #pager_status = do_fake_pager_call(data)
-            if pager_status == 200:
-                # Success => ACK
-                print("[ml_consumer] Pager success, ACKing message.")
-                ch.basic_ack(delivery_tag=method.delivery_tag)
-            elif pager_status % 100 == 5:
-                # Pager returned 5xx => let's retry once, else DLQ
+            
+            if pager_status == None or pager_status % 100 == 5:
+                # Network Error or Pager returned 5xx => let's retry once, else DLQ
                 if retry_count < 1:
                     print(f"[ml_consumer] Pager error {pager_status}, retrying...")
                     new_headers = dict(headers)
@@ -52,13 +48,20 @@ def callback(ch, method, properties, body):
                     )
                     ch.basic_ack(delivery_tag=method.delivery_tag)
                 else:
-                    print("[ml_consumer] Pager error or reached retry limit => DLQ.")
+                    print("[ml_consumer] Pager error, reached retry limit => DLQ.")
                     ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+            elif pager_status == 200:
+                # Success => ACK
+                print("[ml_consumer] Pager success, ACKing message.")
+                ch.basic_ack(delivery_tag=method.delivery_tag)
 
         except Exception as e:
             # Python error => direct to DLQ
             print(f"[ml_consumer] ERROR: {e}")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+    else:
+        #TODO: Add logging for when AKI is not detected
+        print("[ml_consumer] AKI not detected")
 
 def main():
     conn_params = pika.ConnectionParameters(host=RABBIT_HOST)
