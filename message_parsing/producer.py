@@ -64,7 +64,7 @@ def main():
     parser.add_argument("--sim_host", default="localhost", help="Host where the simulator is running")
     parser.add_argument("--sim_port", type=int, default=8440, help="Port where the simulator is listening for MLLP")
     parser.add_argument("--rabbit_host", default="localhost", help="RabbitMQ host")
-    parser.add_argument("--queue_name", default="main_queue", help="Name of the RabbitMQ queue")
+    parser.add_argument("--queue_name", default="message_parsing_queue", help="Name of the RabbitMQ queue")
     args = parser.parse_args()
 
     # 1. Connect to RabbitMQ (blocking connection)
