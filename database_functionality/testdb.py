@@ -22,7 +22,7 @@ def clear_tables():
     print("All tables cleared.\n")
 
 # ----------------------------------------------------------------
-# Provided Function Definitions (unchanged)
+# Provided Function Definitions 
 # ----------------------------------------------------------------
 
 def connect_db():
