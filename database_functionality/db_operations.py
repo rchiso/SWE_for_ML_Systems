@@ -38,12 +38,14 @@ def handle_adt_a01(data):
 
             # Update Feature_Store based on the provided values
             if sex is not None and age is not None:
-                cursor.execute("UPDATE Feature_STORE SET Age = ?, Sex = ?", (age, sex))
+                cursor.execute("UPDATE Feature_STORE SET Age = ?, Sex = ? WHERE PID = ?", (age, sex,patient_id))
+                print("Updated age and sex of {}".format(patient_id))
             elif sex is not None:
-                cursor.execute("UPDATE Feature_STORE SET Sex = ?", (sex,))
+                cursor.execute("UPDATE Feature_STORE SET Sex = ? WHERE PID = ?", (sex,patient_id))
+                print("Updated age and sex of {}".format(patient_id))
             elif age is not None:
-                cursor.execute("UPDATE Feature_STORE SET Age = ?", (age,))
-
+                cursor.execute("UPDATE Feature_STORE SET Age = ? WHERE PID = ?", (age,patient_id))
+                print("Updated age and sex of {}".format(patient_id))
             conn.commit()
 
             # Fetch the updated Feature_Store record.
