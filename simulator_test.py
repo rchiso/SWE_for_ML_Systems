@@ -13,12 +13,14 @@ import urllib.request
 
 import simulator
 
+# Patient Admission
 ADT_A01 = [
     r"MSH|^~\&|SIMULATION|SOUTH RIVERSIDE|||202401201630||ADT^A01|||2.5",
     r"PID|1||478237423||ELIZABETH HOLMES||19840203|F",
     r"NK1|1|SUNNY BALWANI|PARTNER"
 ]
 
+# Observation Result
 ORU_R01 = [
     r"MSH|^~\&|SIMULATION|SOUTH RIVERSIDE|||202401201800||ORU^R01|||2.5",
     r"PID|1||478237423",
@@ -26,11 +28,13 @@ ORU_R01 = [
     r"OBX|1|SN|CREATININE||103.4",
 ]
 
+# Patient Discharge
 ADT_A03 = [
     r"MSH|^~\&|SIMULATION|SOUTH RIVERSIDE|||202401221000||ADT^A03|||2.5",
     r"PID|1||478237423",
 ]
 
+# Acknoledgment Message
 ACK = [
     r"MSH|^~\&|||||20240129093837||ACK|||2.5",
     r"MSA|AA",
@@ -84,6 +88,7 @@ class SimulatorTest(unittest.TestCase):
             s.connect(("localhost", TEST_MLLP_PORT))
             while True:
                 buffer = s.recv(1024)
+                print(buffer)
                 if len(buffer) == 0:
                     break
                 messages.append(from_mllp(buffer))
