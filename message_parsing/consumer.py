@@ -3,6 +3,7 @@
 import pika
 from parsing.hl7 import mssg_parser
 from ml.consumer import QUEUE_NAME as ML_QUEUE_NAME
+from database_functionality.db_operations import handle_adt_a01,handle_oru_a01
 
 RABBIT_HOST = "localhost"
 QUEUE_NAME = "message_parsing_queue"
@@ -29,6 +30,16 @@ def callback(ch, method, properties, body):
         mssg_type, data = mssg_parser(body)
         process_message(body)   
         # TODO: save_to_db()
+        # Process signals
+        if mssg_type == "ADT^A01":
+            handle_adt_a01(data)
+        elif mssg_type[0] == "ORU^A01":
+            record = handle_oru_a01(data)
+            print(record)
+            if record:
+                print("Feature reconstruction needed:", record)
+            else:
+                print("New patient added. No feature reconstruction needed.")
         # TODO: feature_reconstruction()
         # Publish to the second queue
         ch.basic_publish(
