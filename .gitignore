@@ -5,6 +5,13 @@
 /database_functionality/db_interactions_temp.py
 /database_functionality/scratch_test.py
 
+#skip pycache
+/database_functionality/__pycache__
+/message_parsing/__pycache__
+/ml/__pycache__
+/parsing/__pycache__
+/__pycache__
+
 **/.DS_Store
 
 *csv
