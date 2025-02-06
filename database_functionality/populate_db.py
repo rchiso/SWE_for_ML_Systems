@@ -145,7 +145,7 @@ def insert_into_database(dataset, db_path, use_random=True):
 
 def main(use_random=True):
     # File paths
-    file_path = os.path.join(os.path.dirname(__file__), "/data/history.csv")
+    file_path = os.path.join(os.path.dirname(__file__), "../data/history.csv")
     output_file_path = "processed_creatinine_data.csv"
     
     # Process the CSV to compute creatinine features
