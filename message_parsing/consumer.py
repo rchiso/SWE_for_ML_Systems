@@ -46,7 +46,6 @@ def callback(ch, method, properties, body):
             new_feature = update(old_feat, data, mssg_type)
             # Send to ML Queue when ready for inference
             if new_feature['Ready_for_Inference'] == 'Yes':
-                print(new_feature)
                 # Publish to the second queue
                 ch.basic_publish(
                     exchange="",
