@@ -42,7 +42,7 @@ def callback(ch, method, properties, body):
         else:
             old_feat = None
         # feture construction
-        if old_feat is not None:
+        if old_feat is not None and mssg_type=='ORU^R01':
             new_feature = update(old_feat, data, mssg_type)
             # Send to ML Queue when ready for inference
             if new_feature['Ready_for_Inference'] == 'Yes':
