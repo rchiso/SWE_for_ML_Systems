@@ -2,7 +2,9 @@ import requests
 import os
 
 PAGER_PORT = 8441
-PAGER_URL = os.getenv('PAGER_ADDRESS' + '/page', default=f"http://127.0.0.1:{PAGER_PORT}/page")
+PAGER_URL = os.getenv('PAGER_ADDRESS', default=f"http://127.0.0.1:{PAGER_PORT}/page")
+if 'page' not in PAGER_URL:
+    PAGER_URL = 'http://' + PAGER_URL + '/page'
 
 def send_pager_request(mrn, timestamp):
     """

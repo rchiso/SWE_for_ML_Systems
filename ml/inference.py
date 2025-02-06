@@ -33,6 +33,3 @@ def predict_aki(data):
     except Exception as e:
         print(f"[ml_inference] Prediction error: {e}")
         return None, None, None
-
-
-
