@@ -8,7 +8,8 @@ from ml.feature_construct import update
 from database_functionality.db_operations import handle_adt_a01
 from database_functionality.db_operations import handle_oru_a01
 from database_functionality.db_operations import update_feature_store
-
+from database_functionality import create_db
+from database_functionality import populate_db
 
 RABBIT_HOST = "localhost"
 QUEUE_NAME = "message_parsing_queue"
@@ -91,6 +92,7 @@ def callback(ch, method, properties, body):
 
 
 def main():
+    populate_db.main()
     connection_params = pika.ConnectionParameters(host=RABBIT_HOST)
     connection = pika.BlockingConnection(connection_params)
     channel = connection.channel()

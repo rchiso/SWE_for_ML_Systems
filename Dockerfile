@@ -17,8 +17,8 @@ RUN /container/venv/bin/pip install --upgrade pip
 RUN /container/venv/bin/pip install -r /container/requirements.txt
 
 # Build the DB at image build time:
-RUN /container/venv/bin/python /container/database_functionality/create_db.py
-RUN /container/venv/bin/python /container/database_functionality/populate_db.py
+#RUN /container/venv/bin/python /container/database_functionality/create_db.py
+#RUN /container/venv/bin/python /container/database_functionality/populate_db.py
 
 # Enable RabbitMQ management plugin (web UI on port 15672)
 RUN rabbitmq-plugins enable rabbitmq_management
