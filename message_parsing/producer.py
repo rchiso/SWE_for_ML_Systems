@@ -76,7 +76,7 @@ def main():
     # 2. Connect to Simulator's TCP MLLP port
     sim_address = os.getenv('MLLP_ADDRESS')
     sim_host, sim_port = sim_address.split(":")
-    sim_host = "http://" + sim_host
+    #sim_host = "http://" + sim_host
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #sock.connect((args.sim_host, args.sim_port))
     sock.connect((sim_host, int(sim_port)))
