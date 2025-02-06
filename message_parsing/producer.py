@@ -2,6 +2,7 @@
 import argparse
 import socket
 import pika
+import os
 
 # MLLP control characters
 MLLP_START_OF_BLOCK = 0x0b  # \x0B
@@ -73,12 +74,16 @@ def main():
     channel = rabbit_connection.channel()
 
     # 2. Connect to Simulator's TCP MLLP port
+    sim_address = os.getenv('MLLP_ADDRESS')
+    sim_host, sim_port = sim_address.split(":")
+    sim_host = "http://" + sim_host
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((args.sim_host, args.sim_port))
+    #sock.connect((args.sim_host, args.sim_port))
+    sock.connect((sim_host, int(sim_port)))
     sock.settimeout(20.0)
 
-    print(f"[producer_mllp] Connected to simulator at {args.sim_host}:{args.sim_port} ...")
-
+    #print(f"[producer_mllp] Connected to simulator at {args.sim_host}:{args.sim_port} ...")
+    print(f"[producer_mllp] Connected to simulator at {sim_host}:{sim_port} ...")
     leftover = b""
     ack_message = build_hl7_ack()
 
