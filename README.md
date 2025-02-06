@@ -3,7 +3,7 @@
 ### Docker setup
 1. Install docker
 2. `docker build -t swe_for_ml_image .`
-3. `docker run -d --name swe_for_ml_system -p 5672:5672 -p 8440:8440 -p 8441:8441 -p 15672:15672 swe_for_ml_image`
+3. `docker run -d --name swe_for_ml_system -p 5672:5672 -p 8440:8440 -p 8441:8441 -p 15672:15672 -e MLLP_ADDRESS=localhost:8440 -e PAGER_ADDRESS=localhost:8441 swe_for_ml_image`
 4. (Optional) `docker logs -f swe_for_ml_system` to see logs. Because we have to put everything in one dockerfile, all logs are annoyingly in one place.
 5. Can also check stderr and stdout files (as defined in supervisord.conf) for debugging, e.g.: `docker exec -it swe_for_ml_system  cat /var/log/supervisor/consumer.stderr.log`
 6. Run bash with: `docker exec -it swe_for_ml_system bash` (useful for digging into sqlite, among other things)
