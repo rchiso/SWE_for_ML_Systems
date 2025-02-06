@@ -15,32 +15,6 @@ def do_fake_pager_call(inference_result):
     status_code = random.choice([200, 400])  # 50% success, 50% fail
     return status_code
 
-import pandas as pd
-import os
-from datetime import datetime
-
-CSV_FILE = "data.csv"
-
-# Ensure a fresh CSV file with headers
-def initialize_csv():
-    if os.path.exists(CSV_FILE):
-        os.remove(CSV_FILE)  # Delete if it already exists
-    df = pd.DataFrame()
-    df.to_csv(CSV_FILE, index=False)
-
-# Convert HL7 timestamp to readable format
-def convert_hl7_timestamp(hl7_timestamp):
-    try:
-        return datetime.strptime(hl7_timestamp, "%Y%m%d%H%M%S").isoformat()
-    except ValueError:
-        return hl7_timestamp  # Keep it as is if conversion fails
-
-# Append new data to the CSV file
-def store_data(data):
-    df = pd.DataFrame([data.values()], columns=data.keys())
-    df.to_csv(CSV_FILE, mode="a", header=not os.path.exists(CSV_FILE), index=False)
-
-
 def callback(ch, method, properties, body):
     headers = properties.headers or {}
     retry_count = headers.get("x-retry-count", 0)
@@ -55,7 +29,6 @@ def callback(ch, method, properties, body):
         print("[ml_consumer] Prediction Error")
         ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
         return
-    store_data(data)
     if aki_result[0] == 1:
         try:
             # TODO: send result to pager
@@ -123,6 +96,5 @@ def main():
     channel.start_consuming()
 
 if __name__ == "__main__":
-    initialize_csv()
     main()
 

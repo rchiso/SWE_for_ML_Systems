@@ -3,7 +3,7 @@ import os
 
 PAGER_PORT = 8441
 PAGER_URL = os.getenv('PAGER_ADDRESS', default=f"http://127.0.0.1:{PAGER_PORT}/page")
-if 'page' not in PAGER_URL:
+if 'http' not in PAGER_URL:
     PAGER_URL = 'http://' + PAGER_URL + '/page'
 
 def send_pager_request(mrn, timestamp):
@@ -24,5 +24,3 @@ def send_pager_request(mrn, timestamp):
     except requests.exceptions.RequestException:
         print('[ml_pager] Network error while paging')
         return None  # Return None for network-related errors
-
-send_pager_request("123", "1234567890")
