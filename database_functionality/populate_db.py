@@ -39,7 +39,7 @@ def process_creatinine_data(file_path):
             for idx, col in zip(dataset.index, latest_result_column)
         ]
         dataset['latest_test_timestamp'] = [
-            dataset.at[idx, col] if pd.notna(col) else None
+            dataset.at[idx, col].strftime("%Y%m%d%H%M%S") if pd.notna(col) else None
             for idx, col in zip(dataset.index, latest_date_idx)
         ]
     
@@ -66,7 +66,7 @@ def add_demographics(dataset, use_random=True):
     if use_random:
         # Generate random date of birth between 18 and 90 years ago
         dataset["DOB"] = [
-            (datetime.now() - timedelta(days=random.randint(18 * 365, 90 * 365))).strftime("%Y-%m-%d")
+            (datetime.now() - timedelta(days=random.randint(18 * 365, 90 * 365))).strftime("%Y%m%d")
             for _ in range(len(dataset))
         ]
         # Convert DOB to Age
@@ -108,7 +108,7 @@ def insert_into_database(dataset, db_path, use_random=True):
         patient_data = dataset[['mrn', 'DOB']].drop_duplicates(subset=['mrn']).copy()
         patient_data.rename(columns={'mrn': 'PID'}, inplace=True)
         patient_data["Admission_Status"] = "Pending"
-        patient_data["Admission_Date"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        patient_data["Admission_Date"] = datetime.now().strftime("%Y%m%d%H%M")
     else:
         # Non-random mode: for every PID in Feature_Store, add a row with other fields null.
         pids = dataset['mrn'].drop_duplicates()

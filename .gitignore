@@ -3,5 +3,13 @@
 
 # skip db_interactions file
 /database_functionality/db_interactions_temp.py
+/database_functionality/scratch_test.py
+
+#skip pycache
+__pycache__
+
 
 **/.DS_Store
+
+*csv
+*.db

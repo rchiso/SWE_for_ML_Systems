@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 
 import pika
+import json
+from parsing.hl7 import mssg_parser
 from ml.consumer import QUEUE_NAME as ML_QUEUE_NAME
+from ml.feature_construct import update
+from database_functionality.db_operations import handle_adt_a01
+from database_functionality.db_operations import handle_oru_a01
+from database_functionality.db_operations import update_feature_store
+
 
 RABBIT_HOST = "localhost"
 QUEUE_NAME = "message_parsing_queue"
@@ -24,19 +31,35 @@ def callback(ch, method, properties, body):
     retry_count = headers.get("x-retry-count", 0)
 
     try:
-        # TODO: parsing here
-        process_message(body)
-        # TODO: save_to_db()
-        # TODO: feature_reconstruction()
-        # Publish to the second queue
-        ch.basic_publish(
-            exchange="",
-            routing_key=ML_QUEUE_NAME,
-            body="12345", # TODO: this should be the result we wanna send
-            properties=pika.BasicProperties(delivery_mode=2)  # durable
-        )
-        # If success, ACK the message
+        # hl7 mssg parsing 
+        mssg_type, data = mssg_parser(body)
+        #process_message(body)  
+        # Fetch data from DB 
+        if mssg_type=='ADT^A01':
+            old_feat = handle_adt_a01(data)
+        elif mssg_type=='ORU^R01':
+            old_feat = handle_oru_a01(data)
+        else:
+            old_feat = None
+        # feture construction
+        if old_feat is not None:
+            new_feature = update(old_feat, data, mssg_type)
+            # Send to ML Queue when ready for inference
+            if new_feature['Ready_for_Inference'] == 'Yes':
+                print(new_feature)
+                # Publish to the second queue
+                ch.basic_publish(
+                    exchange="",
+                    routing_key=ML_QUEUE_NAME,
+                    body=json.dumps(new_feature), 
+                    properties=pika.BasicProperties(delivery_mode=2)  # durable
+                )
+                new_feature['Ready_for_Inference'] = 'No'
+
+            update_feature_store(new_feature['PID'], new_feature)  # data[0] is the patient_id
+        # ack the message    
         ch.basic_ack(delivery_tag=method.delivery_tag)
+
     except Exception as e:
         # Something went wrong
         print(f"[consumer] Error processing message: {e}")
