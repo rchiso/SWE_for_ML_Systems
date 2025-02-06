@@ -7,6 +7,8 @@ from ml.consumer import QUEUE_NAME as ML_QUEUE_NAME
 from ml.feature_construct import update
 from database_functionality.db_operations import handle_adt_a01
 from database_functionality.db_operations import handle_oru_a01
+from database_functionality.db_operations import update_feature_store
+
 
 RABBIT_HOST = "localhost"
 QUEUE_NAME = "message_parsing_queue"
@@ -37,12 +39,14 @@ def callback(ch, method, properties, body):
             old_feat = handle_adt_a01(data)
         elif mssg_type=='ORU^R01':
             old_feat = handle_oru_a01(data)
-        
+        else:
+            old_feat = None
         # feture construction
         if old_feat is not None:
             new_feature = update(old_feat, data, mssg_type)
             # Send to ML Queue when ready for inference
             if new_feature['Ready_for_Inference'] == 'Yes':
+                print(new_feature)
                 # Publish to the second queue
                 ch.basic_publish(
                     exchange="",
@@ -50,11 +54,11 @@ def callback(ch, method, properties, body):
                     body=json.dumps(new_feature), 
                     properties=pika.BasicProperties(delivery_mode=2)  # durable
                 )
-                # If success, ACK the message
-                ch.basic_ack(delivery_tag=method.delivery_tag)
-
                 new_feature['Ready_for_Inference'] = 'No'
-                # TODO: Update the DB
+
+            update_feature_store(new_feature['PID'], new_feature)  # data[0] is the patient_id
+        # ack the message    
+        ch.basic_ack(delivery_tag=method.delivery_tag)
 
     except Exception as e:
         # Something went wrong

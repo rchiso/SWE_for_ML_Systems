@@ -38,12 +38,14 @@ def handle_adt_a01(data):
 
             # Update Feature_Store based on the provided values
             if sex is not None and age is not None:
-                cursor.execute("UPDATE Feature_STORE SET Age = ?, Sex = ?", (age, sex))
+                cursor.execute("UPDATE Feature_STORE SET Age = ?, Sex = ? WHERE PID = ?", (age, sex,patient_id))
+                print("Updated age and sex of {}".format(patient_id))
             elif sex is not None:
-                cursor.execute("UPDATE Feature_STORE SET Sex = ?", (sex,))
+                cursor.execute("UPDATE Feature_STORE SET Sex = ? WHERE PID = ?", (sex,patient_id))
+                print("Updated age and sex of {}".format(patient_id))
             elif age is not None:
-                cursor.execute("UPDATE Feature_STORE SET Age = ?", (age,))
-
+                cursor.execute("UPDATE Feature_STORE SET Age = ? WHERE PID = ?", (age,patient_id))
+                print("Updated age and sex of {}".format(patient_id))
             conn.commit()
 
             # Fetch the updated Feature_Store record.
@@ -126,3 +128,30 @@ def handle_oru_a01(data):
 
             conn.commit()
             return None  # Return None when patient was missing and newly added
+        
+
+def update_feature_store(pid, new_feature):
+    """
+    Update the Feature_Store table with the latest feature values for a given patient ID.
+    """
+    with connect_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE Feature_Store
+            SET Sex = ?, Age = ?, Min = ?, Max = ?, Mean = ?, Standard_Deviation = ?,
+                Last_Result_Value = ?, Latest_Result_Timestamp = ?, No_of_Samples = ?, Ready_for_Inference = ?
+            WHERE PID = ?;
+        """, (
+            new_feature.get("Sex"),
+            new_feature.get("Age"),
+            new_feature.get("Min"),
+            new_feature.get("Max"),
+            new_feature.get("Mean"),
+            new_feature.get("Standard_Deviation"),
+            new_feature.get("Last_Result_Value"),
+            new_feature.get("Latest_Result_Timestamp"),
+            new_feature.get("No_of_Samples"),
+            new_feature.get("Ready_for_Inference"),
+            pid
+        ))
+        conn.commit()

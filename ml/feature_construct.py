@@ -7,9 +7,9 @@ def update(feature, data, mssg_type):
 
     # First time patient 
     if mssg_type=='ORU^R01' and feature['Mean'] == None:
-        feature['Min'] = feature['Last_Result_Value']
-        feature['Max'] = feature['Last_Result_Value']
-        feature['Mean'] = feature['Last_Result_Value']
+        feature['Min'] = data[1]
+        feature['Max'] = data[1]
+        feature['Mean'] = data[1]
         feature['Standard_Deviation'] = 0
         feature['Last_Result_Value'] = data[1]
         feature['Latest_Result_Timestamp'] = data[2]
@@ -18,10 +18,10 @@ def update(feature, data, mssg_type):
     
     elif mssg_type=='ORU^R01' and feature['Mean']!=None:
         n = feature['No_of_Samples']
-        feature['Min'] = min(data[1], feature['Last_Result_Value'])
-        feature['Max'] = max(data[1], feature['Last_Result_Value'])
+        feature['Min'] = min(data[1], feature['Min'])
+        feature['Max'] = max(data[1], feature['Max'])
         feature['Mean'] = (n*feature['Mean'] + data[1])/(n+1)
-        feature['Standard_Deviation'] = ( (n/(n+1))*(feature['Standard_Deviation']**2) + (data[1]-feature['Mean'])/n  )**0.5
+        feature['Standard_Deviation'] = ( (n/(n+1))*(feature['Standard_Deviation']**2) + ((data[1]-feature['Mean'])**2)/n  )**0.5
         feature['Last_Result_Value'] = data[1]
         feature['Latest_Result_Timestamp'] = data[2]
         feature['No_of_Samples'] += 1
