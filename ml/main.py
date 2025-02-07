@@ -3,9 +3,14 @@ from ml.pager import send_pager_request
 
 
 def ml_consumer(data):
-    print(f"[ml_consumer] Received message: data={data}")
+    '''
+    Function to recieve data after feature reconstruction 
+    -> Predict using ML model 
+    -> Send the result to pager
+    '''
+    #print(f"[ml_consumer] Received message: data={data}")
 
-    # TODO: send to ml for inference
+    # send to ml for inference
     aki_result, mrn, timestamp = predict_aki(data)
     if aki_result == None:
         print("[ml_consumer] Prediction Error")
@@ -25,5 +30,5 @@ def ml_consumer(data):
             # Python error => direct to DLQ
             print(f"[ml_consumer] ERROR: {e}")
     else:
-        #TODO: Add logging for when AKI is not detected
+        # Add logging for when AKI is not detected
         print("[ml_consumer] AKI not detected")

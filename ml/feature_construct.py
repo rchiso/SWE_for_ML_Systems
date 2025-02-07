@@ -1,11 +1,19 @@
 
 def update(feature, data, mssg_type):
-    # First time patient
-    #PID, Sex, Age, Min, Max, Mean, Standard_Deviation,
-    #                                   Last_Result_Value, Latest_Result_Timestamp, No_of_Samples, Ready_for_Inference
-    # data: [patient_id, float(crt_result), test_date]
+    '''
+    Update the feature vector of the patient with new incoming blood test record
 
-    # First time patient 
+    Args-
+    feature: dict{PID, Sex, Age, Min, Max, Mean, Standard_Deviation,
+                  Last_Result_Value, Latest_Result_Timestamp, No_of_Samples, Ready_for_Inference}
+    data: List[patient_id, float(crt_result), test_date]
+    mssg_type: str ('ORU^R01')
+
+    Returns-
+    feature - similar to above dict with changes values
+    '''
+
+    # First time patient with no history
     if mssg_type=='ORU^R01' and feature['Mean'] == None:
         feature['Min'] = data[1]
         feature['Max'] = data[1]
@@ -15,7 +23,7 @@ def update(feature, data, mssg_type):
         feature['Latest_Result_Timestamp'] = data[2]
         feature['No_of_Samples'] += 1
 
-    
+    # Patient with history records
     elif mssg_type=='ORU^R01' and feature['Mean']!=None:
         n = feature['No_of_Samples']
         feature['Min'] = min(data[1], feature['Min'])
