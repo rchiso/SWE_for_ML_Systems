@@ -18,12 +18,12 @@ QUEUE_NAME = "message_parsing_queue"
 def process_message(body):
     """Pretend to parse + write to DB. Raise an exception sometimes for testing."""
     msg_str = body.decode("utf-8", errors="replace")
-    print(f"[consumer] Processing message: {msg_str}", file=sys.stdout)
+    print(f"[consumer] Processing message: {msg_str}")
     # Simulate random failure. For a real scenario, replace with actual logic.
     if "FAIL" in msg_str:
         raise ValueError("Simulated processing error: 'FAIL' found")
     # Otherwise it "succeeds"
-    print("[consumer] Done processing.", file=sys.stdout)
+    print("[consumer] Done processing.")
 
 # We don't have an explicit producer in this queue, because the consumer of 1st queue is acting as one
 def callback(ch, method, properties, body):
@@ -62,12 +62,12 @@ def callback(ch, method, properties, body):
 
     except Exception as e:
         # Something went wrong
-        print(f"[consumer] Error processing message: {e}",file=sys.stderr)
+        print(f"[consumer] Error processing message: {e}")
         
         if retry_count < 1:
             # 1) We'll republish the message with retry_count+1
             new_retry_count = retry_count + 1
-            print(f"[consumer] Requeue attempt #{new_retry_count} ...", file=sys.stderr)
+            print(f"[consumer] Requeue attempt #{new_retry_count} ...")
 
             # Build new properties with updated headers
             new_headers = dict(headers)
@@ -87,7 +87,7 @@ def callback(ch, method, properties, body):
             ch.basic_ack(delivery_tag=method.delivery_tag)
         else:
             # Exceeded retry limit => send to DLQ by NACK w/ requeue=False
-            print("[consumer] Retry limit exceeded, sending to Dead Letter Queue...", file=sys.stdout)
+            print("[consumer] Retry limit exceeded, sending to Dead Letter Queue...")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
 
@@ -125,7 +125,7 @@ def main():
         auto_ack=False
     )
 
-    print(f"[consumer] Waiting for messages in '{QUEUE_NAME}'. Press Ctrl+C to exit.", file=sys.stdout)
+    print(f"[consumer] Waiting for messages in '{QUEUE_NAME}'. Press Ctrl+C to exit.")
     try:
         channel.start_consuming()
     except KeyboardInterrupt:
