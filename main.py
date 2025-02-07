@@ -38,7 +38,7 @@ def main():
             for msg in messages:
                 # Here 'msg' is the raw HL7 bytes between 0x0B and 0x1C
                 hl7_str = msg.decode("utf-8", errors="replace")
-                print(f"[main] Received HL7 message:\n{hl7_str}")
+                #print(f"[main] Received HL7 message:\n{hl7_str}")
 
                 message_consumer(msg)
 
