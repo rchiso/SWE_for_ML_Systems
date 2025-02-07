@@ -14,3 +14,6 @@ __pycache__
 *csv
 *.db
 database_functionality/patient_database.db
+database_functionality/purger.py
+database_functionality/testdb.py
+
