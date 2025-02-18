@@ -3,8 +3,8 @@ import os
 from datetime import datetime
 
 # Get database path
-script_dir = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(script_dir, "patient_database.db")
+db_path = os.path.join("/state", "patient_database.db")
+
 
 
 def connect_db():

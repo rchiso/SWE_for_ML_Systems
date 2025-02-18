@@ -159,8 +159,8 @@ def main(use_random=True):
     dataset.to_csv(output_file_path, index=False)
     
     # Determine the SQLite database path (relative to this script)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(script_dir, "patient_database.db")
+    db_path = os.path.join("/state", "patient_database.db")
+
     
     # Insert the processed data into the database
     insert_into_database(dataset, db_path, use_random=use_random)
