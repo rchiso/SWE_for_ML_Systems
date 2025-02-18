@@ -16,7 +16,3 @@ __pycache__
 database_functionality/patient_database.db
 database_functionality/purger.py
 database_functionality/testdb.py
-
-
-
-coursework4.yaml
