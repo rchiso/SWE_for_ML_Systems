@@ -3,14 +3,18 @@ import socket
 import os
 from utils import parse_mllp_stream, build_hl7_ack
 from message_parsing.main import message_consumer
-from database_functionality import create_db
 from database_functionality import populate_db
+from monitoring.metrics import init_metrics
 
 def main():
+    prometheus_port = int(os.getenv("PROMETHEUS_PORT", 9090))
+    init_metrics(prometheus_port)
+    print(f"[main] Prometheus metrics server running on port {prometheus_port}.")
+
     populate_db.main()   # populate the db with history.csv
 
     sim_address = os.getenv('MLLP_ADDRESS')  # Connect to Simulator's TCP MLLP port
-    #sim_address = 'localhost:8440'
+    # sim_address = 'localhost:8440'
 
     sim_host, sim_port = sim_address.split(":")
 
@@ -38,7 +42,7 @@ def main():
             for msg in messages:
                 # Here 'msg' is the raw HL7 bytes between 0x0B and 0x1C
                 hl7_str = msg.decode("utf-8", errors="replace")
-                #print(f"[main] Received HL7 message:\n{hl7_str}")
+                # print(f"[main] Received HL7 message:\n{hl7_str}")
 
                 message_consumer(msg)
 

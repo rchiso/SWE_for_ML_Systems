@@ -1,6 +1,6 @@
 import sqlite3
 import os
-from datetime import datetime
+from monitoring.metrics import record_error, monitor_db_operation
 
 # Get database path
 db_path = os.path.join("/state", "patient_database.db")
@@ -12,6 +12,7 @@ def connect_db():
     return sqlite3.connect(db_path)
 
 
+@monitor_db_operation("handle_adt_a01")
 def handle_adt_a01(data):
     """Handles ADT^A01 signal - Patient Admission."""
     patient_id, age, sex_key = data
@@ -95,6 +96,7 @@ def handle_adt_a01(data):
 #         conn.commit()
 
 
+@monitor_db_operation("handle_oru_a01")
 def handle_oru_a01(data):
     """Handles ORU^A01 signal - Lab Result Update and returns existing record for feature reconstruction."""
     patient_id, latest_result, latest_result_test_date = data
@@ -128,8 +130,9 @@ def handle_oru_a01(data):
 
             conn.commit()
             return None  # Return None when patient was missing and newly added
-        
 
+
+@monitor_db_operation("update_feature_store")
 def update_feature_store(pid, new_feature):
     """
     Update the Feature_Store table with the latest feature values for a given patient ID.
