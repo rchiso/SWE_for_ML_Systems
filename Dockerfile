@@ -20,5 +20,6 @@ EXPOSE 9090
 
 # Initialize environment variables
 ENV PROMETHEUS_PORT=9090
+ENV PYTHONUNBUFFERED=1
 
 CMD [ "/container/venv/bin/python", "/container/main.py" ]

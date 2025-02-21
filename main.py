@@ -4,14 +4,16 @@ import os
 from utils import parse_mllp_stream, build_hl7_ack
 from message_parsing.main import message_consumer
 from database_functionality import populate_db
+from database_functionality import create_db
 from monitoring.metrics import init_metrics
 
 def main():
     prometheus_port = int(os.getenv("PROMETHEUS_PORT", 9090))
     init_metrics(prometheus_port)
     print(f"[main] Prometheus metrics server running on port {prometheus_port}.")
-
-    populate_db.main()   # populate the db with history.csv
+    flag = create_db.main()
+    if not flag:
+        populate_db.main()   # populate the db with history.csv
 
     sim_address = os.getenv('MLLP_ADDRESS')  # Connect to Simulator's TCP MLLP port
     # sim_address = 'localhost:8440'

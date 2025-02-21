@@ -13,6 +13,7 @@ __pycache__
 
 *csv
 *.db
+*.log
 database_functionality/patient_database.db
 database_functionality/purger.py
 database_functionality/testdb.py
