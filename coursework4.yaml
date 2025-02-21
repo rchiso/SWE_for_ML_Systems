@@ -29,6 +29,7 @@ spec:
       containers:
       - name: aki-detection
         image: imperialswemlsspring2025.azurecr.io/coursework4-alameda
+        imagePullPolicy: "Always"
         command: ["/container/venv/bin/python", "/container/main.py"]
         env:
         - name: MLLP_ADDRESS
