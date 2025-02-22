@@ -25,6 +25,10 @@ spec:
     metadata:
       labels:
         app: aki-detection
+      annotations:
+        prometheus.io/scrape: "true"       # Tell Prometheus to scrape this pod
+        prometheus.io/port: "9090"           # The port where your metrics server is running
+        prometheus.io/path: "/metrics"  
     spec:
       containers:
       - name: aki-detection
