@@ -3,7 +3,7 @@
 ## Making and deploying changes to Kubernetes
 1. After you make any changes, build the image again.
    ```docker build --platform=linux/amd64 -t imperialswemlsspring2025.azurecr.io/coursework4-alameda .```
-2. Push the image
+2. Push the image (need to login to azure, see below)
    ```docker push imperialswemlsspring2025.azurecr.io/coursework4-alameda```
 3. In Kubernetes, stop the running pod (check pod-name via `kubectl get pods -n alameda`)
    ```kubectl delete pod <pod-name> -n alameda```
@@ -13,6 +13,10 @@
 6. To see prometheus metrics locally, forward the 9090 port:
    ```kubectl port-forward -n alameda <pod-name>  9090:9090```
    Then, visit or curl `http://localhost:9090/metrics`
+
+### Azure login
+1. `az login`
+2. `az acr login --name imperialswemlsspring2025`
 
 ### Docker setup (outdated)
 1. Install docker
