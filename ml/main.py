@@ -1,9 +1,12 @@
+import time
 from ml.inference import predict_aki
 from ml.pager import send_pager_request
 from monitoring.metrics import PREDICTIONS_MADE, PAGER_REQUESTS, SYSTEM_HEALTH, record_error
 
 
-def ml_consumer(data):
+RESEND_DELAY = 2
+
+def ml_consumer(data, resend_flag = False):
     '''
     Function to recieve data after feature reconstruction 
     -> Predict using ML model 
@@ -29,8 +32,15 @@ def ml_consumer(data):
 
             if pager_status == None or pager_status % 100 == 5:
                 PAGER_REQUESTS.labels(status="error").inc()
-                # Network Error or Pager returned 5xx => let's retry once, else DLQ
-                print("[ml_consumer] Pager error")
+                # Network Error or Pager returned 5xx
+                if not resend_flag:
+                    print(f"[ml_consumer] Pager error, retrying in {RESEND_DELAY} seconds")
+                    time.sleep(RESEND_DELAY)
+                    ml_consumer(data, True)
+                else:
+                    print(f"[ml_consumer] Pager error on second retry")
+
+
             elif pager_status == 200:
                 PAGER_REQUESTS.labels(status="success").inc()
                 # Success => ACK
