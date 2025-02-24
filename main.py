@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import socket
 import os
+import time
 from utils import parse_mllp_stream, build_hl7_ack
 from message_parsing.main import message_consumer
 from database_functionality import populate_db
@@ -60,8 +61,10 @@ def main():
 
     finally:
         sock.close()
-
         print("[main] Connection closed. Exiting.")
+
+        print("[main] Going to sleep")
+        time.sleep(720)
 
 if __name__ == "__main__":
     main()
