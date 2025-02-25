@@ -4,7 +4,7 @@ from ml.pager import send_pager_request
 from monitoring.metrics import PREDICTIONS_MADE, PAGER_REQUESTS, SYSTEM_HEALTH, record_error
 
 
-RESEND_DELAY = 2
+RESEND_DELAY = 10
 
 def ml_consumer(data, resend_flag = False):
     '''

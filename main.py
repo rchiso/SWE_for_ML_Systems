@@ -8,8 +8,8 @@ from database_functionality import populate_db
 from database_functionality import create_db
 from monitoring.metrics import init_metrics
 
-DELAY_RETRY = 2
-TIMEOUT = 2
+DELAY_RETRY = 10
+TIMEOUT = 20
 
 def main():
     killer = GracefulKiller()
@@ -74,8 +74,9 @@ def main():
                     except Exception as e:
                         print(f"[main] Error {e} while closing socket")
                         pass
-                    time.sleep(DELAY_RETRY)
-                    break
+                    finally:
+                        time.sleep(DELAY_RETRY)
+                        break
 
         except Exception as e:
             print(f"[main] Received Error: {e}")
