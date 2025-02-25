@@ -21,16 +21,16 @@ def ml_consumer(data, resend_flag = False):
         if aki_result == None:
             print("[ml_consumer] Prediction Error")
             return
-
-        # Track prediction results
-        PREDICTIONS_MADE.labels(
-            result="positive" if aki_result[0] == 1 else "negative"
-        ).inc()
+        if not resend_flag:
+            # Track prediction results
+            PREDICTIONS_MADE.labels(
+                result="positive" if aki_result[0] == 1 else "negative"
+            ).inc()
 
         if aki_result[0] == 1:
             pager_status = send_pager_request(mrn, timestamp)
 
-            if pager_status == None or pager_status % 100 == 5:
+            if pager_status == None or pager_status % 100 != 2:
                 PAGER_REQUESTS.labels(status="error").inc()
                 # Network Error or Pager returned 5xx
                 if not resend_flag:
