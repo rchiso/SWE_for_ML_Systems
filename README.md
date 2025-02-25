@@ -10,9 +10,9 @@
 4. Kubernetes will automatically make a new pod using the new updated image. 
 5. Export logs using
    ```kubectl logs --namespace=alameda -l app=aki-detection --tail=-1 > pod.log```
-6. To see prometheus metrics locally, forward the 9090 port:
-   ```kubectl port-forward -n alameda <pod-name>  9090:9090```
-   Then, visit or curl `http://localhost:9090/metrics`
+6. To see prometheus UI, forward the 9090 port from the prometheus service:
+   ```kubectl port-forward -n alameda service/prometheus 9090:9090```
+   Then, visit `http://localhost:9090`
 
 ### Azure login
 1. `az login`
