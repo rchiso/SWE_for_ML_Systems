@@ -37,9 +37,9 @@ spec:
         command: ["/container/venv/bin/python", "/container/main.py"]
         env:
         - name: MLLP_ADDRESS
-          value: alameda-simulator.coursework4:8440
+          value: alameda-simulator.coursework5:8440
         - name: PAGER_ADDRESS
-          value: alameda-simulator.coursework4:8441
+          value: alameda-simulator.coursework5:8441
         - name: PROMETHEUS_PORT
           value: "9090"
         ports:
