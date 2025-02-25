@@ -14,6 +14,7 @@ TIMEOUT = 2
 def main():
     killer = GracefulKiller()
     init_flag = True
+    timeout_reconnect_flag = False #prevent print statement if reconnect is due to timeout (prevent spam)
     while not killer.kill_now:
         try:
             if init_flag:
@@ -29,46 +30,52 @@ def main():
             # sim_address = 'localhost:8440'
 
             sim_host, sim_port = sim_address.split(":")
-
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((sim_host, int(sim_port)))
+            sock.settimeout(TIMEOUT)
+            if not timeout_reconnect_flag:
+                timeout_reconnect_flag = False
+                print(f"[main] Connected to simulator at {sim_host}:{sim_port} ...")
             leftover = b""
             ack_message = build_hl7_ack()
             while not killer.kill_now:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.connect((sim_host, int(sim_port)))
-                sock.settimeout(TIMEOUT)
-
-                print(f"[main] Connected to simulator at {sim_host}:{sim_port} ...")
                 try:
-                    while True:
-                        # 1. Read data from the simulator
-                        chunk = sock.recv(1024)
-                        if not chunk:
-                            print("[main] Simulator closed connection.")
-                            break  # connection closed by server
-                        leftover += chunk
+                    # 1. Read data from the simulator
+                    chunk = sock.recv(1024)
+                    if not chunk:
+                        print("[main] Simulator closed connection.")
+                        timeout_reconnect_flag = False
+                        break  # connection closed by server
+                    leftover += chunk
 
-                        # 2. Try to parse out complete MLLP‐framed messages
-                        messages, leftover = parse_mllp_stream(leftover)
+                    # 2. Try to parse out complete MLLP‐framed messages
+                    messages, leftover = parse_mllp_stream(leftover)
 
-                        # 3. For each complete HL7 message:
-                        for msg in messages:
-                            # Here 'msg' is the raw HL7 bytes between 0x0B and 0x1C
-                            # hl7_str = msg.decode("utf-8", errors="replace")
-                            # print(f"[main] Received HL7 message:\n{hl7_str}")
+                    # 3. For each complete HL7 message:
+                    for msg in messages:
+                        # Here 'msg' is the raw HL7 bytes between 0x0B and 0x1C
+                        # hl7_str = msg.decode("utf-8", errors="replace")
+                        # print(f"[main] Received HL7 message:\n{hl7_str}")
 
-                            message_consumer(msg)
+                        message_consumer(msg)
 
-                            sock.sendall(ack_message)
-                            print("[main] Sent MLLP ACK.")
+                        sock.sendall(ack_message)
+                        print("[main] Sent MLLP ACK.")
 
                 except socket.timeout:
-                    #print(f"[main] Socket timed out. Retrying in {DELAY_RETRY} seconds.")
-                    continue
+                    #print(f"[main] Socket timed out.")
+                    timeout_reconnect_flag = True
+                    break
                 except Exception as e:
                     print(f"[main] Error: {e}, reconnecting to socket in {DELAY_RETRY} seconds")
+                    timeout_reconnect_flag = False
+                    try:
+                        sock.close()
+                    except Exception as e:
+                        print(f"[main] Error {e} while closing socket")
+                        pass
                     time.sleep(DELAY_RETRY)
-                    continue
-
+                    break
 
         except Exception as e:
             print(f"[main] Received Error: {e}")
