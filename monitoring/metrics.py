@@ -39,6 +39,14 @@ ERROR_COUNTER = Counter(
     ["error_type", "component"],
 )
 
+SOCKET_TIMEOUTS = Counter(
+    "socket_timeouts", "Number of times the socket has timed out"
+)
+
+SIGTERM_COUNTER = Counter(
+    "sigterm_counter", "Number of times the pod has received SIGTERM"
+)
+
 # System health metrics
 SYSTEM_HEALTH = Gauge(
     "system_health_status", "Current health status of system components", ["component"]

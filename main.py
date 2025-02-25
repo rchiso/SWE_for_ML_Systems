@@ -6,7 +6,7 @@ from utils import parse_mllp_stream, build_hl7_ack, GracefulKiller
 from message_parsing.main import message_consumer
 from database_functionality import populate_db
 from database_functionality import create_db
-from monitoring.metrics import init_metrics
+from monitoring.metrics import init_metrics, SOCKET_TIMEOUTS
 
 DELAY_RETRY = 10
 TIMEOUT = 20
@@ -65,6 +65,7 @@ def main():
                 except socket.timeout:
                     #print(f"[main] Socket timed out.")
                     timeout_reconnect_flag = True
+                    SOCKET_TIMEOUTS.inc()
                     break
                 except Exception as e:
                     print(f"[main] Error: {e}, reconnecting to socket in {DELAY_RETRY} seconds")

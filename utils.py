@@ -1,4 +1,5 @@
 import signal
+from monitoring.metrics import SIGTERM_COUNTER
 
 # MLLP control characters
 MLLP_START_OF_BLOCK = 0x0b  # \x0B
@@ -69,4 +70,5 @@ class GracefulKiller:
 
   def exit_gracefully(self, signum, frame):
     print("[utils] Received SIGTERM")
+    SIGTERM_COUNTER.inc()
     self.kill_now = True
