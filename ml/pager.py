@@ -22,6 +22,6 @@ def send_pager_request(mrn, timestamp):
             PAGER_URL = 'http://' + PAGER_URL + '/page'
         response = requests.post(PAGER_URL, data=f"{mrn},{timestamp}", timeout=0.2)
         return response.status_code  # Return actual status code
-    except requests.exceptions.RequestException:
-        print('[ml_pager] Network error while paging')
+    except requests.exceptions.RequestException as e:
+        print(f'[ml_pager] Network error while paging, {e}')
         return None  # Return None for network-related errors
