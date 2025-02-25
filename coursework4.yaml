@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: aki-detection-state
+  namespace: alameda
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: managed-csi
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aki-detection
+  namespace: alameda
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aki-detection
+  template:
+    metadata:
+      labels:
+        app: aki-detection
+      annotations:
+        prometheus.io/scrape: "true"       # Tell Prometheus to scrape this pod
+        prometheus.io/port: "9090"           # The port where your metrics server is running
+        prometheus.io/path: "/metrics"  
+    spec:
+      containers:
+      - name: aki-detection
+        image: imperialswemlsspring2025.azurecr.io/coursework4-alameda
+        imagePullPolicy: "Always"
+        command: ["/container/venv/bin/python", "/container/main.py"]
+        env:
+        - name: MLLP_ADDRESS
+          value: alameda-simulator.coursework4:8440
+        - name: PAGER_ADDRESS
+          value: alameda-simulator.coursework4:8441
+        - name: PROMETHEUS_PORT
+          value: "9090"
+        ports:
+        - name: http
+          containerPort: 8000
+        - name: metrics
+          containerPort: 9090
+        volumeMounts:
+          - mountPath: "/data"
+            name: hospital-history
+            readOnly: true
+          - mountPath: "/state"
+            name: aki-detection-state
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 500m
+      initContainers:
+      - name: copy-hospital-history
+        image: imperialswemlsspring2025.azurecr.io/coursework4-history
+        volumeMounts:
+          - mountPath: "/data"
+            name: hospital-history
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 250m
+      volumes:
+      - name: hospital-history
+        emptyDir:
+          sizeLimit: 50Mi
+      - name: aki-detection-state
+        persistentVolumeClaim:
+          claimName: aki-detection-state
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aki-detection-metrics
+  namespace: alameda
+  labels:
+    app: aki-detection
+spec:
+  ports:
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+  selector:
+    app: aki-detection
