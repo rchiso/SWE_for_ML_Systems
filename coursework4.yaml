@@ -25,19 +25,28 @@ spec:
     metadata:
       labels:
         app: aki-detection
+      annotations:
+        prometheus.io/scrape: "true"       # Tell Prometheus to scrape this pod
+        prometheus.io/port: "9090"           # The port where your metrics server is running
+        prometheus.io/path: "/metrics"  
     spec:
       containers:
       - name: aki-detection
         image: imperialswemlsspring2025.azurecr.io/coursework4-alameda
+        imagePullPolicy: "Always"
         command: ["/container/venv/bin/python", "/container/main.py"]
         env:
         - name: MLLP_ADDRESS
           value: alameda-simulator.coursework4:8440
         - name: PAGER_ADDRESS
           value: alameda-simulator.coursework4:8441
+        - name: PROMETHEUS_PORT
+          value: "9090"
         ports:
         - name: http
           containerPort: 8000
+        - name: metrics
+          containerPort: 9090
         volumeMounts:
           - mountPath: "/data"
             name: hospital-history
@@ -46,8 +55,8 @@ spec:
             name: aki-detection-state
         resources:
           requests:
-            memory: 1G
-            cpu: 1
+            memory: 512Mi
+            cpu: 500m
       initContainers:
       - name: copy-hospital-history
         image: imperialswemlsspring2025.azurecr.io/coursework4-history
@@ -56,8 +65,8 @@ spec:
             name: hospital-history
         resources:
           requests:
-            memory: 1G
-            cpu: 1
+            memory: 256Mi
+            cpu: 250m
       volumes:
       - name: hospital-history
         emptyDir:
@@ -65,3 +74,18 @@ spec:
       - name: aki-detection-state
         persistentVolumeClaim:
           claimName: aki-detection-state
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aki-detection-metrics
+  namespace: alameda
+  labels:
+    app: aki-detection
+spec:
+  ports:
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+  selector:
+    app: aki-detection
