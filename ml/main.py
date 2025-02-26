@@ -30,7 +30,7 @@ def ml_consumer(data, resend_flag = False):
         if aki_result[0] == 1:
             pager_status = send_pager_request(mrn, timestamp)
 
-            if pager_status == None or pager_status % 100 != 2:
+            if pager_status != 200:
                 PAGER_REQUESTS.labels(status="error").inc()
                 # Network Error or Pager returned 5xx
                 if not resend_flag:
