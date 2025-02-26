@@ -37,9 +37,9 @@ spec:
         command: ["/container/venv/bin/python", "/container/main.py"]
         env:
         - name: MLLP_ADDRESS
-          value: alameda-simulator.coursework5:8440
+          value: alameda-simulator.coursework6:8440
         - name: PAGER_ADDRESS
-          value: alameda-simulator.coursework5:8441
+          value: alameda-simulator.coursework6:8441
         - name: PROMETHEUS_PORT
           value: "9090"
         ports:
@@ -59,7 +59,7 @@ spec:
             cpu: 500m
       initContainers:
       - name: copy-hospital-history
-        image: imperialswemlsspring2025.azurecr.io/coursework4-history
+        image: imperialswemlsspring2025.azurecr.io/coursework6-history
         volumeMounts:
           - mountPath: "/data"
             name: hospital-history
