@@ -1,4 +1,4 @@
-# ML for software systems
+# SWE_for_ML_Systems
 
 ## Making and deploying changes to Kubernetes
 1. After you make any changes, build the image again.
